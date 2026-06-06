@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: healthverse_db
+    environment:
+      POSTGRES_DB: healthverse
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d healthverse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: healthverse_backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/healthverse
+      JWT_SECRET: supersecretkeyhealthverse123!
+      EMAIL_LOGS_DIR: /workspace/email_logs
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/workspace
+      - email_logs:/workspace/email_logs
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: healthverse_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  email_logs:
