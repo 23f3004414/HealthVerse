@@ -149,6 +149,49 @@ const DoctorDashboard = () => {
         </div>
       )}
 
+      {/* Metrics Row */}
+      <div className="grid-4" style={{ marginBottom: '0.5rem' }}>
+        <div className="glass metric-card" style={{ borderLeft: '4px solid var(--primary)' }}>
+          <div style={{ background: 'var(--primary-light)', padding: '10px', borderRadius: 'var(--radius-md)' }}>
+            <Users size={24} color="var(--primary)" />
+          </div>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Total Bookings</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-display)', marginTop: '2px' }}>{appointments.length}</div>
+          </div>
+        </div>
+
+        <div className="glass metric-card" style={{ borderLeft: '4px solid var(--accent-amber)' }}>
+          <div style={{ background: 'var(--accent-amber-light)', padding: '10px', borderRadius: 'var(--radius-md)' }}>
+            <Bell size={24} color="var(--accent-amber)" />
+          </div>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Pending Reviews</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-display)', marginTop: '2px' }}>{appointments.filter(a => a.status === 'pending').length}</div>
+          </div>
+        </div>
+
+        <div className="glass metric-card" style={{ borderLeft: '4px solid var(--accent-emerald)' }}>
+          <div style={{ background: 'var(--accent-emerald-light)', padding: '10px', borderRadius: 'var(--radius-md)' }}>
+            <Calendar size={24} color="var(--accent-emerald)" />
+          </div>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Open Slots</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-display)', marginTop: '2px' }}>{slots.filter(s => !s.is_booked).length}</div>
+          </div>
+        </div>
+
+        <div className="glass metric-card" style={{ borderLeft: '4px solid var(--text-muted)' }}>
+          <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '10px', borderRadius: 'var(--radius-md)' }}>
+            <Clock size={24} color="var(--text-secondary)" />
+          </div>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Total Slots</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-display)', marginTop: '2px' }}>{slots.length}</div>
+          </div>
+        </div>
+      </div>
+
       {/* Main Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '2rem', alignItems: 'start' }}>
         

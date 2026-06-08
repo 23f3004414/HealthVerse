@@ -14,6 +14,7 @@ const PatientDashboard = () => {
   const [loadingAppts, setLoadingAppts] = useState(false);
   
   const [notification, setNotification] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchDoctors = async () => {
     setLoadingDocs(true);
@@ -201,10 +202,22 @@ const PatientDashboard = () => {
 
             {/* Doctors list section */}
             <div className="glass" style={{ padding: '2rem', borderRadius: 'var(--radius-lg)' }}>
-              <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-display)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-display)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Stethoscope size={22} color="var(--primary)" />
                 Available Doctors
               </h3>
+
+              {/* Search input filter */}
+              <div style={{ marginBottom: '1.25rem', position: 'relative' }}>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  placeholder="Search name or specialty..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{ padding: '10px 14px', fontSize: '0.85rem' }}
+                />
+              </div>
 
               {loadingDocs ? (
                 <p style={{ color: 'var(--text-secondary)' }}>Searching doctors...</p>
@@ -212,7 +225,10 @@ const PatientDashboard = () => {
                 <p style={{ color: 'var(--text-secondary)' }}>No doctors registered in HealthVerse.</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {doctors.map((doc) => (
+                  {doctors.filter(doc => 
+                    doc.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    doc.specialty.toLowerCase().includes(searchQuery.toLowerCase())
+                  ).map((doc) => (
                     <div 
                       key={doc.id} 
                       className="glass-interactive" 
@@ -237,6 +253,14 @@ const PatientDashboard = () => {
                       </button>
                     </div>
                   ))}
+                  {doctors.filter(doc => 
+                    doc.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    doc.specialty.toLowerCase().includes(searchQuery.toLowerCase())
+                  ).length === 0 && (
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '1rem' }}>
+                      No matching doctors found.
+                    </p>
+                  )}
                 </div>
               )}
             </div>
