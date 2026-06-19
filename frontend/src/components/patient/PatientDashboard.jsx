@@ -15,6 +15,9 @@ const PatientDashboard = () => {
   
   const [notification, setNotification] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activityLog, setActivityLog] = useState([
+    { id: 'init', time: new Date().toLocaleTimeString(), message: 'Connected to HealthVerse Live Feed.' }
+  ]);
 
   const fetchDoctors = async () => {
     setLoadingDocs(true);
@@ -68,6 +71,17 @@ const PatientDashboard = () => {
           status: wsMessage.status
         });
         
+        // Record to Live Activity Log
+        setActivityLog(prev => [
+          {
+            id: Date.now(),
+            time: new Date().toLocaleTimeString(),
+            message: wsMessage.message,
+            status: wsMessage.status
+          },
+          ...prev
+        ]);
+
         // Instantly refresh appointments without manual page reload!
         fetchAppointments();
         
@@ -198,6 +212,24 @@ const PatientDashboard = () => {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Live Activity Log */}
+            <div className="glass" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1.5rem', borderLeft: '4px solid var(--primary)' }}>
+              <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--font-display)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="live-dot" title="Live Sync Active"></span>
+                Live Activity Feed
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto', paddingRight: '4px' }}>
+                {activityLog.map((log) => (
+                  <div key={log.id} style={{ display: 'flex', gap: '10px', fontSize: '0.85rem', padding: '6px 10px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}>
+                    <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>{log.time}</span>
+                    <span style={{ color: log.status === 'confirmed' ? 'var(--accent-emerald)' : log.status === 'cancelled' ? 'var(--accent-rose)' : 'var(--text-primary)' }}>
+                      {log.message}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Doctors list section */}

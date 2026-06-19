@@ -14,6 +14,9 @@ const DoctorDashboard = () => {
   
   const [notification, setNotification] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
+  const [activityLog, setActivityLog] = useState([
+    { id: 'init', time: new Date().toLocaleTimeString(), message: 'Connected to HealthVerse Live Feed.' }
+  ]);
 
   const fetchAppointments = async () => {
     setLoadingAppts(true);
@@ -65,6 +68,17 @@ const DoctorDashboard = () => {
           message: wsMessage.message,
         });
         
+        // Record to Live Activity Log
+        setActivityLog(prev => [
+          {
+            id: Date.now(),
+            time: new Date().toLocaleTimeString(),
+            message: wsMessage.message,
+            type: 'booking'
+          },
+          ...prev
+        ]);
+
         // Refresh appointments lists instantly without reload!
         fetchAppointments();
         fetchSlots(); // refresh slot states as one was just booked
@@ -278,6 +292,24 @@ const DoctorDashboard = () => {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Live Activity Log */}
+        <div className="glass" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1.5rem', borderLeft: '4px solid var(--primary)' }}>
+          <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--font-display)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="live-dot" title="Live Sync Active"></span>
+            Live Activity Feed
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto', paddingRight: '4px' }}>
+            {activityLog.map((log) => (
+              <div key={log.id} style={{ display: 'flex', gap: '10px', fontSize: '0.85rem', padding: '6px 10px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}>
+                <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>{log.time}</span>
+                <span style={{ color: 'var(--text-primary)' }}>
+                  {log.message}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Schedule/Availability column */}
