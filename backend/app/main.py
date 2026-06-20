@@ -2,7 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query, status
 from fastapi.middleware.cors import CORSMiddleware
-from app.db import init_db, close_db
+from app.db import init_db, close_db, is_sqlite, transaction
 from app.auth import decode_access_token
 from app.websocket import manager
 from app.routers import auth, doctors, appointments
@@ -43,6 +43,25 @@ app.include_router(appointments.router)
 @app.get("/")
 def read_root():
     return {"message": "Welcome to HealthVerse API!"}
+
+@app.get("/health")
+async def health_check():
+    db_status = "connected"
+    db_type = "SQLite (Local Fallback)" if is_sqlite else "PostgreSQL"
+    try:
+        async with transaction() as conn:
+            await conn.fetchval("SELECT 1")
+    except Exception as e:
+        logger.error(f"Health check failed to connect to database: {e}")
+        db_status = "disconnected"
+        
+    return {
+        "status": "healthy" if db_status == "connected" else "unhealthy",
+        "database": {
+            "type": db_type,
+            "status": db_status
+        }
+    }
 
 # Real-time WebSocket Endpoint
 @app.websocket("/ws/{role}/{user_id}")
